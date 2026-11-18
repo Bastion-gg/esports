@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: bastion-countdown-demo
+    runtime: node
+    plan: free
+    rootDir: countdown-timer
+    buildCommand: node --check server.cjs
+    startCommand: node server.cjs
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: TIMER_HOSTED_DEMO
+        value: "1"
+      - key: TIMER_CONTROL_PIN
+        sync: false
