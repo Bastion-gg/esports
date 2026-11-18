@@ -1,0 +1,8 @@
+export function formatTime(ms,precise=false){const n=Math.max(0,Math.floor(ms)),s=precise?Math.floor(n/1000):Math.max(0,Math.ceil(ms/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;return(h?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0')+(precise?'.'+String(n%1000).padStart(3,'0'):'')}
+export class SharedClock extends EventTarget{
+ constructor(screen='control',preview=false){super();this.state=null;this.anchor=Date.now()-performance.now();this.connected=false;this.ready=this.sync();this.events=new EventSource('/events?screen='+encodeURIComponent(screen)+(preview?'&preview=1':''));this.events.addEventListener('state',e=>{const next=JSON.parse(e.data);if(this.state&&next.revision<this.state.revision)return;this.state=next;this.dispatchEvent(new Event('state'))});this.events.onopen=()=>{this.connected=true;this.sync();this.dispatchEvent(new Event('connection'))};this.events.onerror=()=>{this.connected=false;this.dispatchEvent(new Event('connection'))};this.interval=setInterval(()=>this.sync(),10000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)this.sync()});}
+ async sync(){let best=null;for(let i=0;i<3;i++){try{const t0=performance.now(),r=await fetch('/api/time',{cache:'no-store'});if(!r.ok)continue;const d=await r.json(),t1=performance.now(),rtt=t1-t0;if(!best||rtt<best.rtt)best={rtt,anchor:d.serverNow-(t0+t1)/2}}catch{}}if(best){this.anchor=best.anchor;this.rtt=best.rtt;this.dispatchEvent(new Event('sync'))}}
+ now(){return performance.now()+this.anchor}
+ remaining(){if(!this.state)return 0;return this.state.status==='running'?Math.max(0,this.state.deadline-this.now()):this.state.remainingMs}
+ close(){this.events.close();clearInterval(this.interval)}
+}
