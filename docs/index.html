@@ -5,6 +5,7 @@
 *{box-sizing:border-box}body{margin:0;background:#101216;color:#f4f5f7;font:16px/1.5 system-ui,sans-serif}
 main{width:min(1120px,calc(100% - 32px));margin:48px auto}
 h1{margin:0;font-size:clamp(28px,5vw,48px);letter-spacing:-.045em}
+.bastion-logo{display:block;width:clamp(150px,25vw,240px);height:auto;margin-bottom:18px}
 header p{margin:6px 0 20px;color:#b7bac2}button{border:0;border-radius:9px;background:#f0b90b;color:#141414;font:700 15px system-ui;padding:12px 18px;cursor:pointer}button:focus-visible{outline:2px solid #fff;outline-offset:4px}
 .displays{display:grid;grid-template-columns:1fr 2.3fr;gap:16px;margin-top:24px}
 section{min-width:0;background:#181a20;border:1px solid #2f333b;border-radius:12px;overflow:hidden}
@@ -17,7 +18,7 @@ html.output,html.output body{height:100%;background:transparent;overflow:hidden}
 html.output iframe{position:fixed;inset:0;background:transparent}
 .view{height:clamp(260px,42vw,470px)}@media(max-width:600px){main{margin-top:24px}.displays{grid-template-columns:1fr}.view{height:280px}}
 </style></head>
-<body><main><header><h1>Countdown Timer</h1><p>Bastion Esports Design · 35-second demo</p>
+<body><main><header><img class="bastion-logo" src="./bastion-logo.svg" alt="Bastion Esports Design" width="650" height="216"><h1>Countdown Timer</h1><p>35-second demo</p>
 <div class="controls"><button id="play" type="button">▶ Start 35-second demo</button><button class="secondary" id="pause" type="button" disabled>Pause</button><button class="secondary" id="reset" type="button">Reset</button></div>
 <div class="output-links"><button class="secondary" id="make-links" type="button">Prepare Browser Source links</button><button class="secondary" id="copy-side" type="button" disabled>Copy Side · 800 × 1400</button><button class="secondary" id="copy-center" type="button" disabled>Copy Center · 1920 × 1080</button></div>
 <p id="notice" role="status">Prepare both links together for a timed test in a separate browser or video mixer.</p></header>
