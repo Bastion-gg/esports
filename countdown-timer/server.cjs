@@ -19,7 +19,16 @@ function pinSession(req) {
 }
 function showPinForm(res, status=200, error='') {
   res.writeHead(status, {'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});
-  res.end('<!doctype html><html lang="th"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Countdown Control</title><link rel="stylesheet" href="/control.css"><main><div class="panel"><h1>Countdown Control</h1><form method="post" action="/control/login"><label class="field">PIN<input name="pin" type="password" inputmode="numeric" autocomplete="current-password" required maxlength="12"></label><p role="status">'+error+'</p><button class="primary">เข้าสู่หน้าควบคุม</button></form></div></main></html>');
+  const cells = '<span></span>'.repeat(pin.length);
+  res.end(`<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Countdown Control</title><link rel="stylesheet" href="/control.css"></head>
+<body class="pin-page"><main class="pin-card"><div class="pin-brand"><img src="/assets/bastion-logo.svg" alt="Bastion Esports Design"></div><h1>Countdown Control</h1>
+<form method="post" action="/control/login"><label for="pin">กรอก PIN ${pin.length} หลัก</label>
+<div class="pin-entry"><div class="pin-cells" aria-hidden="true" style="--pin-count:${pin.length}">${cells}</div>
+<input id="pin" name="pin" type="password" inputmode="numeric" pattern="[0-9]{${pin.length}}" autocomplete="current-password" required maxlength="${pin.length}"></div>
+<p class="pin-error" role="status">${error}</p><button class="primary">เข้าสู่หน้าควบคุม</button></form></main>
+<script>const input=document.querySelector("#pin"), cells=[...document.querySelectorAll(".pin-cells span")];
+function paint(){cells.forEach((cell,i)=>{cell.textContent=i<input.value.length?"●":"";cell.classList.toggle("filled",i<input.value.length);cell.classList.toggle("current",i===input.value.length)})}
+input.addEventListener("input",()=>{input.value=input.value.replace(/[^0-9]/g,"");paint()});paint();</script></body></html>`);
 }
 async function login(req,res) {
   const ip=req.socket.remoteAddress;
@@ -81,4 +90,3 @@ server.listen(PORT,HOST,()=>{console.log('Binance Countdown Timer');console.log(
 server.on('error',e=>{console.error(e.code==='EADDRINUSE'?'พอร์ต '+PORT+' ถูกใช้งานอยู่ — เปิด http://127.0.0.1:'+PORT+'/ หรือเปลี่ยน PORT':e.message);process.exit(1)});
 function shutdown(){if(closing)return;closing=true;clearInterval(tick);clearInterval(heartbeat);persist();for(const res of clients.keys())res.end();server.close(()=>process.exit(0));setTimeout(()=>process.exit(0),2000).unref()}
 process.on('SIGINT',shutdown);process.on('SIGTERM',shutdown);
-
