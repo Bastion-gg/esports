@@ -313,3 +313,87 @@ body[data-screen="center"] #timer.finish-out .finish-lockup {
   letter-spacing: inherit;
   color: inherit;
 }
+
+/* Center lower third: fixed geometry and Binance yellow perimeter light. */
+body[data-screen="center"] #timer {
+  transform: none !important;
+  filter: none !important;
+}
+body[data-screen="center"] #timer .clock-box {
+  height: 40cqw;
+  display: grid;
+  align-items: center;
+  padding-block: 0;
+  transform: none;
+  background: rgba(24, 26, 32, .78);
+  border-color: rgba(240, 185, 11, .45);
+  box-shadow: 0 3px 14px #0004;
+}
+body[data-screen="center"] #timer .clock-box::before { display: none; }
+body[data-screen="center"] #timer #digits { color: #f5f5f5; }
+body[data-screen="center"] #timer .fraction { color: #f0b90b; }
+body[data-screen="center"] #timer .brand { color: #f0b90b; }
+body[data-screen="center"] .edge-base { stroke: #f0b90b45; }
+body[data-screen="center"] .edge-trail {
+  stroke: #f0b90b;
+  stroke-dasharray: 12 88;
+  filter: drop-shadow(0 0 2px #f0b90b66);
+}
+body[data-screen="center"] .edge-head {
+  stroke: #ffe163;
+  filter: none;
+}
+body[data-screen="center"] #timer.final .edge-trail {
+  stroke-dasharray: 18 82;
+  filter: drop-shadow(0 0 4px #f0b90b99);
+}
+body[data-screen="center"] #timer .finish-clock {
+  animation: center-clock-opacity 420ms ease-out both;
+  border-color: #f0b90b;
+  box-shadow: 0 0 .25em #f0b90b66;
+}
+body[data-screen="center"] #timer .finish-clock::before { animation: none; }
+body[data-screen="center"] #timer .finish-label {
+  animation-name: center-label-opacity, timer-finish-blink;
+  color: #f0b90b;
+}
+@keyframes center-clock-opacity { from { opacity: 0; } to { opacity: 1; } }
+@keyframes center-label-opacity {
+  from { visibility: visible; opacity: 0; }
+  to { visibility: visible; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body[data-screen="center"] #timer .finish-clock,
+  body[data-screen="center"] #timer .finish-label { animation: none; }
+}
+/* Paused output cue */
+.pause-message { display: none; }
+body[data-status="paused"] #timer:not(.finish-out) #digits { visibility: hidden; }
+body[data-status="paused"] #timer:not(.finish-out) .pause-message {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  color: #f0b90b;
+  font: 900 10cqw/1 CountdownGotham, Display, sans-serif;
+  letter-spacing: .08em;
+}
+.pause-lockup { display: flex; align-items: center; gap: .5em; }
+body[data-screen="left"] #timer.solo .pause-message { font-size: 15cqw; }
+body[data-screen="left"] #timer.solo .pause-lockup { flex-direction: column; gap: .5em; }
+.pause-icon {
+  display: grid;
+  grid-template-columns: repeat(2,.27em);
+  gap: .17em;
+  filter: drop-shadow(0 0 .18em #f0b90b66);
+}
+.pause-icon::before, .pause-icon::after {
+  content: "";
+  height: .82em;
+  border-radius: .05em;
+  background: currentColor;
+}
+#timer .clock-box .pause-label { font: inherit; letter-spacing: inherit; color: inherit; }
+body[data-screen="left"][data-status="paused"] #timer.solo .clock-box::before,
+body[data-screen="left"][data-status="paused"] #timer.solo .clock-box::after { display: none; }
