@@ -1,0 +1,5 @@
+/timer-state.json*
+/server.log*
+/.env*
+/public/assets/*.otf
+/public/assets/*.ttf
