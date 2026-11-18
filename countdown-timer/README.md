@@ -5,3 +5,5 @@ Run locally on the production LAN with Node.js 22+. On Windows, use Start_Timer.
 The server creates timer-state.json locally. Keep it off GitHub because it contains the control key. For matching typography, put the locally licensed Gotham-Black.otf and Display.ttf in public/assets. The app uses system fallbacks without local font files. Optional scene PNGs go in the sibling SPLIT_SCREENS directory or the directory configured by LED_SCENES_DIR.
 
 GitHub stores source code. Run the live timer on the LAN server.
+
+To require a PIN for the control panel, create `control-pin.txt` next to `server.cjs` with a 4–12 digit PIN, then restart the LAN server. Keep that file local. Output links remain available without a PIN.
