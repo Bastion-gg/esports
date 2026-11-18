@@ -3,3 +3,4 @@
 /.env*
 /public/assets/*.otf
 /public/assets/*.ttf
+/control-pin.txt
