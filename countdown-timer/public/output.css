@@ -1,0 +1,315 @@
+@font-face{font-family:Display;src:url('/assets/Display.ttf')}*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:transparent}#screen{position:absolute;transform-origin:0 0;overflow:hidden}#scene{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:none}#timer{position:absolute;container-type:inline-size;visibility:hidden}.brand{display:flex;align-items:center;justify-content:center;gap:3cqw;color:#f3ba2f;font:bold 12cqw Arial,sans-serif;letter-spacing:1cqw;margin:0 0 7cqw}.brand svg{fill:currentColor;width:16cqw;height:16cqw;flex:none}.clock-box{background:rgba(9,9,12,.93);border:1px solid #686157;border-radius:7cqw;padding:4cqw 3cqw 5cqw;text-align:center;box-shadow:0 2cqw 6cqw #0004}.clock-box span{display:block;color:#fff;font:clamp(20px,25cqw,120px)/1.08 Display,Arial,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-1cqw;white-space:nowrap}.clock-box.long span{font-size:19cqw}.warning .clock-box span{color:#f3ca69}.finished .clock-box span{color:#f3ba2f}.finished .clock-box{border-color:#b78e30}body.preview{background:repeating-conic-gradient(#171a20 0 25%,#1c2027 0 50%) 0/28px 28px}
+#digits .whole{display:inline;font:inherit;letter-spacing:inherit;color:inherit}.fraction{font-size:.48em;letter-spacing:0;margin-left:.03em;color:#e4d5a5}.milliseconds #digits{font-size:20cqw;letter-spacing:-.7cqw}.clock-box{position:relative;overflow:hidden}.final .clock-box{border-color:#ffbd62;background:linear-gradient(115deg,#2d0b0b,#100d0d 68%,#49220c);box-shadow:0 0 calc(4px + var(--beat)*22px) rgba(255,120,28,.55),inset 0 0 3cqw #ff6b161b;transform:scale(calc(1 + var(--beat)*.018))}.final .clock-box:before{content:'';position:absolute;left:var(--sweep);top:0;bottom:0;width:18%;background:linear-gradient(90deg,transparent,#ffcb591c,transparent);transform:skewX(-20deg);pointer-events:none}.final .clock-box:after{content:'';position:absolute;left:0;right:0;bottom:0;height:1cqw;background:linear-gradient(90deg,#ff5238,#ffd675,#ff5238)}.final .clock-box #digits{color:#fff3db}.final .fraction{color:#ffb259}.final.paused .clock-box{transform:none}.finished .fraction{color:#a98845}@media(prefers-reduced-motion:reduce){.final .clock-box{transform:none;box-shadow:0 0 12px #e78b3355}.final .clock-box:before{display:none}}
+
+/* Translucent center bar with a server-clock-driven perimeter highlight. */
+body[data-screen="center"] .clock-box{background:rgba(33,26,12,.46);border-color:rgba(243,186,47,.4);box-shadow:0 4px 22px #0003;isolation:isolate}
+body[data-screen="center"] .final .clock-box{background:linear-gradient(115deg,rgba(105,27,13,.48),rgba(33,26,12,.38));box-shadow:0 0 calc(4px + var(--beat)*22px) #ff781c55}
+body[data-screen="center"] .clock-box:after{display:none}
+.edge-light{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:2}
+.edge-light rect{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.edge-base{stroke:#f3ba2f55;stroke-width:1}
+.edge-trail{stroke:#f3ba2f;stroke-width:2;stroke-dasharray:18 82;stroke-dashoffset:var(--edge-offset);filter:drop-shadow(0 0 3px #ffc343)}
+.edge-head{stroke:#fff4c5;stroke-width:2;stroke-dasharray:3 97;stroke-dashoffset:var(--edge-offset);filter:drop-shadow(0 0 2px #fff1a8)}
+@media(prefers-reduced-motion:reduce){.edge-trail,.edge-head{stroke-dashoffset:0}}
+
+body[data-screen="center"] #scene{object-fit:contain}
+
+/* Final side countdown: freestanding numerals. */
+#timer.solo .brand{display:none!important}
+#timer.solo .clock-box{background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;overflow:visible;transform:none;isolation:isolate}
+#timer.solo .fraction{display:none}
+#timer.solo #digits{position:relative;z-index:2;display:block;font-size:90cqw;line-height:1.05;letter-spacing:-4cqw;text-align:center;transform:scaleY(1.2) scale(var(--number-pop));transform-origin:center;filter:drop-shadow(0 0 5px #b9d9ff) drop-shadow(0 0 18px #234bff) drop-shadow(0 0 42px #122aff)}
+#timer.solo.two-digits #digits{font-size:67cqw;letter-spacing:-5cqw;line-height:1.41}
+#timer.solo #digits .whole{color:transparent;-webkit-text-stroke:1.5px #c1d7ff;background:linear-gradient(125deg,#102184 0%,#4679ff 22%,#afc4ff 36%,#fff 42%,#537bff 48%,#1830a5 65%,#abcfff 78%,#254bdb 100%);background-size:300% 300%;background-position:var(--light-pos) calc(100% - var(--light-pos));background-clip:text;-webkit-background-clip:text;text-shadow:none}
+#timer.solo .clock-box:before{content:'';display:block;position:absolute;z-index:0;inset:-8% -2%;width:auto;height:auto;border-radius:50%;background:conic-gradient(from var(--orbit),transparent 0deg,#1537ff00 205deg,#244bff44 250deg,#83b5ffbb 280deg,transparent 308deg);mask:radial-gradient(ellipse,transparent 56%,#000 61%,#000 63%,transparent 69%);-webkit-mask:radial-gradient(ellipse,transparent 56%,#000 61%,#000 63%,transparent 69%);filter:blur(3px);transform:rotate(-16deg);pointer-events:none}
+#timer.solo .clock-box:after{content:'';display:block;position:absolute;z-index:-1;inset:-18%;width:auto;height:auto;background:radial-gradient(ellipse,#254dff30,transparent 66%);pointer-events:none}
+#timer.solo.finished #digits{filter:drop-shadow(0 0 12px #325bff)}
+@media(prefers-reduced-motion:reduce){#timer.solo #digits{transform:scaleY(1.2)}#timer.solo #digits .whole{background-position:50% 50%}#timer.solo .clock-box:before{display:none}}
+
+/* Polished gold: a fixed metal face and independent looping specular pass. */
+#timer.solo #digits{filter:drop-shadow(2px 4px 0 #73400d) drop-shadow(0 0 3px #ffc96399) drop-shadow(0 0 15px #ed9d253b)}
+#timer.solo #digits .whole{display:inline-block;position:relative;color:transparent;-webkit-text-stroke:1.3px #fff0b2;background:linear-gradient(155deg,#fff6cd 0%,#f7d978 16%,#b7791b 31%,#ffe9a6 45%,#fff8dd 48%,#d79b2a 54%,#81500f 69%,#eebd4c 83%,#fff2b2 100%);background-size:100% 100%;background-position:0 0;background-clip:text;-webkit-background-clip:text;paint-order:stroke fill}
+#timer.solo #digits .whole:after{content:attr(data-value);position:absolute;inset:0;color:transparent;-webkit-text-stroke:0;background:linear-gradient(115deg,transparent 34%,#fff2c222 42%,#fff7d5bb 47%,#fffef7 49%,#fff9dd 51%,#ffe4a055 55%,transparent 63%);background-size:340% 100%;background-position:var(--light-pos) 50%;background-clip:text;-webkit-background-clip:text;filter:drop-shadow(0 0 3px #ffe3a399);pointer-events:none}
+#timer.solo .clock-box:before{inset:4% 7%;background:conic-gradient(from var(--orbit),transparent 0deg,transparent 235deg,#d38c1a18 263deg,#ffe9aa77 284deg,transparent 300deg);mask:radial-gradient(ellipse,transparent 63%,#000 65%,transparent 67%);-webkit-mask:radial-gradient(ellipse,transparent 63%,#000 65%,transparent 67%);filter:blur(1px);opacity:.55}
+#timer.solo .clock-box:after{inset:-5%;background:radial-gradient(ellipse,#efac2314 0%,transparent 63%)}
+#timer.solo.finished #digits{filter:drop-shadow(2px 4px 0 #73400d) drop-shadow(0 0 9px #ed9d253b)}
+@media(prefers-reduced-motion:reduce){#timer.solo #digits .whole:after{background-position:50% 50%}}
+
+body[data-screen='left'] .brand{display:none!important}
+/* Side gold bevel and continuous reflection */
+#timer.solo #digits,
+#timer.solo.finished #digits {
+  filter: drop-shadow(2px 2px 0 #c68b2f)
+    drop-shadow(2px 2px 0 #9a5d17)
+    drop-shadow(3px 3px 0 #70400d)
+    drop-shadow(4px 4px 0 #4a2508)
+    drop-shadow(3px 3px 0 #321803)
+    drop-shadow(0 0 11px #ffb54255);
+}
+#timer.solo #digits .whole {
+  -webkit-text-stroke: 2px #ffe5a2;
+  background-image: linear-gradient(160deg,#fff7d1 4%,#ffdc80 19%,
+    #bf781c 38%,#f4bc51 48%,#fff3bd 54%,#d79a32 59%,#8f5210 79%,#edb952 95%);
+}
+#timer.solo #digits .whole:after {
+  background-image: linear-gradient(118deg,transparent 27%,#fff0b929 38%,
+    #ffefaf77 44%,#fffdf2f2 49%,#fff7d3c9 52%,#ffcf7255 59%,transparent 72%);
+  background-size: 185% 100%;
+}
+#timer.solo .clock-box:before { opacity: .36; }
+
+/* Center the shared Side overlay regardless of the active timer style. */
+body[data-screen="left"] #timer {
+  left: 50% !important;
+  top: 50% !important;
+  translate: -50% -50%;
+}
+/* Side illuminated bevel */
+#timer.solo #digits {
+  transform: scaleX(.82) scaleY(1.25) scale(var(--number-pop));
+}
+#timer.solo.two-digits #digits {
+  transform: scaleX(.92) scaleY(1.25) scale(var(--number-pop));
+}
+#timer.solo #digits .whole {
+  -webkit-text-stroke: 2.5px #ffe7a0;
+  background-image: linear-gradient(157deg,#fff2b9 6%,#da9c32 27%,
+    #a46316 42%,#e8b348 49%,#fff2ae 55%,#c48422 63%,#8e5011 81%,#ffd878 98%);
+}
+#timer.solo #digits .whole::before {
+  content: attr(data-value);
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  -webkit-text-stroke: 2px #fff2c9;
+  transform: translate(-1.5px,-2px);
+  filter: drop-shadow(0 0 3px #ffcb62);
+  opacity: .78;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  #timer.solo #digits { transform: scaleX(.82) scaleY(1.25); }
+  #timer.solo.two-digits #digits { transform: scaleX(.92) scaleY(1.25); }
+}
+/* Side reference finish */
+
+#timer.solo #digits {
+  font-family: CountdownCondensed, Display, sans-serif;
+  font-size: 97cqw;
+  line-height: 1;
+  letter-spacing: 0;
+  filter: drop-shadow(2px 1px 0 #d8972b) drop-shadow(2px 1px 0 #a56219)
+    drop-shadow(3px 2px 0 #79420d) drop-shadow(4px 2px 0 #432205)
+    drop-shadow(0 0 13px #ffa83255);
+}
+#timer.solo.two-digits #digits {
+  font-size: 77cqw;
+  line-height: 1.26;
+  letter-spacing: -.5cqw;
+}
+#timer.solo #digits .whole {
+  -webkit-text-stroke: 2.5px #ffe8a1;
+  background-image: linear-gradient(152deg,#ffd96c 7%,#b67420 34%,
+    #edb647 49%,#ffe3a0 59%,#ad6418 76%,#ffda7b 100%);
+}
+#timer.solo #digits .whole::before {
+  transform: translate(-1.25px,-1.5px);
+  -webkit-text-stroke: 1.5px #fff6d9;
+  opacity: .86;
+}
+#timer.solo #digits .whole::after {
+  background-image: linear-gradient(111deg,transparent 20%,#ffc25225 29%,
+    #ffdf8080 37%,#fff7d6e8 46%,#fffdf5 50%,#fff0bbdb 55%,
+    #ffd36a66 63%,transparent 75%);
+  background-size: 235% 100%;
+}
+#timer.solo .clock-box::before { opacity: .23; }
+
+/* Front-facing stroke with an even halo. */
+#timer.solo #digits,
+#timer.solo.finished #digits {
+  filter: drop-shadow(0 0 4px #ffcb6270) drop-shadow(0 0 12px #ffa83240);
+}
+#timer.solo #digits .whole::before {
+  transform: none;
+  filter: none;
+}
+
+#timer.solo #digits { font-family: "Gotham Black", Display, sans-serif; font-size: 90cqw; line-height: 1.05; letter-spacing: -4cqw; }
+#timer.solo.two-digits #digits { font-size: 67cqw; line-height: 1.41; letter-spacing: -5cqw; }
+/* Side finale lighting */
+#timer.solo.final #digits {
+  filter: drop-shadow(0 0 3px #fff2c2) drop-shadow(0 0 15px #ffb529a0)
+    drop-shadow(0 0 30px #ff801951);
+}
+#timer.solo.final #digits .whole::after {
+  background-image: linear-gradient(110deg, transparent 13%, #ffbd4938 25%,
+    #ffdd8977 34%, #fff1bfd9 42%, #fffdf6 49%, #fff3beec 54%,
+    #ffbc4e99 64%, #fff2a863 71%, transparent 88%);
+  background-size: 230% 100%;
+}
+#timer.solo.final .clock-box::before {
+  inset: -5% 1%;
+  opacity: .95;
+  background: conic-gradient(from var(--orbit), transparent 0deg,
+    #d7841729 25deg, #ffe6a9bb 57deg, transparent 78deg,
+    transparent 166deg, #ffb32f55 210deg, #fff0b9 239deg, transparent 256deg);
+  mask: radial-gradient(ellipse, transparent 58%, #0009 60%, #000 63%,
+    transparent 65%, #0008 68%, transparent 70%);
+  filter: blur(1.5px);
+}
+#timer.solo.final .clock-box::after {
+  inset: -22% -4%;
+  background:
+    radial-gradient(ellipse at var(--light-pos) 70%, #fff3b16b, #ff9a242c 25%, transparent 62%),
+    radial-gradient(ellipse at center, #ffd47930, #db780d22 46%, transparent 71%),
+    conic-gradient(from var(--orbit), transparent 15deg, #ffbe5340 36deg,
+      transparent 53deg, transparent 194deg, #ffdc6855 218deg, transparent 246deg);
+  mask: radial-gradient(ellipse, #000 21%, transparent 69%);
+}
+@media (prefers-reduced-motion: reduce) {
+  #timer.solo.final .clock-box::before { display: none; }
+  #timer.solo.final .clock-box::after {
+    background: radial-gradient(ellipse at center,#ffd47944,transparent 70%);
+  }
+}
+
+
+#timer.solo #digits {
+  font-family: CountdownGotham, Display, sans-serif;
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: CountdownGotham;
+  src: url('/assets/Gotham-Black.otf') format('opentype');
+  font-weight: 900;
+  font-display: swap;
+}/* Timer finish cue */
+.finish-message { display: none; }
+#timer.finish-out { animation: timer-finish-out 3.6s ease-in-out forwards; }
+#timer.finish-out .finish-message {
+  display: block;
+  position: absolute;
+  inset: calc(100% + 5cqw) 0 auto;
+  color: #fff2bf;
+  font: 900 12cqw/1 CountdownGotham, Display, sans-serif;
+  letter-spacing: .08em;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 0 14px #e69725, 0 2px 5px #311900;
+  animation: timer-finish-blink 700ms ease-in-out 4;
+}
+@keyframes timer-finish-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .25; }
+}
+@keyframes timer-finish-out {
+  0%, 78% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #timer.finish-out .finish-message { animation: none; }
+}
+
+#timer.finish-out #digits { visibility: hidden; }
+#timer.finish-out .finish-message {
+  display: grid;
+  place-items: center;
+  inset: 0;
+  z-index: 3;
+}
+#timer.solo.finish-out .finish-message { font-size: 15cqw; }
+
+#timer.solo.two-digits #digits {
+  font-size: 63cqw;
+  line-height: 1.5;
+  letter-spacing: .6cqw;
+  font-variant-numeric: tabular-nums;
+}
+#timer.solo.two-digits #digits .whole {
+  letter-spacing: inherit;
+}
+/* Clock reveal at expiration */
+#timer.finish-out .finish-message { animation: none; }
+.finish-lockup { display: flex; align-items: center; gap: .48em; }
+#timer.solo .finish-lockup { flex-direction: column; gap: .55em; }
+.finish-clock {
+  display: block;
+  position: relative;
+  width: .95em;
+  height: .95em;
+  flex-shrink: 0;
+  border: .075em solid #ffe191;
+  border-radius: 50%;
+  box-shadow: 0 0 .28em #ffa831a0, inset 0 0 .2em #ffbc4a66;
+  animation: finish-clock-in 520ms cubic-bezier(.16,1,.3,1) both;
+}
+#timer.solo .finish-clock { font-size: 1.45em; }
+.finish-clock::before, .finish-clock::after {
+  content: "";
+  position: absolute;
+  left: 46%;
+  bottom: 48%;
+  width: .07em;
+  border-radius: .1em;
+  transform-origin: center bottom;
+  background: #fff2c3;
+}
+.finish-clock::before { height: 33%; animation: finish-hand 520ms ease-out both; }
+.finish-clock::after { height: 24%; transform: rotate(125deg); }
+.finish-label {
+  visibility: hidden;
+  animation: finish-label-in 380ms 480ms ease-out forwards,
+    timer-finish-blink 620ms 1s ease-in-out 3;
+}
+@keyframes finish-clock-in {
+  from { opacity: 0; transform: scale(.45) rotate(-35deg); }
+  to { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes finish-hand { from { transform: rotate(-270deg); } to { transform: rotate(0); } }
+@keyframes finish-label-in {
+  from { visibility: visible; opacity: 0; transform: translateY(.24em); }
+  to { visibility: visible; opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .finish-clock, .finish-clock::before, .finish-label { animation: none; }
+  .finish-label { visibility: visible; }
+}
+
+/* Preserve the native Gotham Black proportions on Side. */
+#timer.solo #digits,
+#timer.solo.two-digits #digits {
+  transform: scale(var(--number-pop, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  #timer.solo #digits,
+  #timer.solo.two-digits #digits { transform: none; }
+}
+
+/* Extra paint area for glyph overhangs and the moving gold reflection. */
+#timer.solo #digits .whole {
+  padding-inline: .06em;
+  margin-inline: -.06em;
+  padding-block: .035em;
+  margin-block: -.035em;
+}
+#timer.solo #digits .whole::before,
+#timer.solo #digits .whole::after {
+  padding: inherit;
+}
+#timer.solo #digits .whole::after {
+  background-origin: border-box;
+}
+
+/* Fit the expiry cue within the Center bar. */
+body[data-screen="center"] #timer.finish-out .finish-lockup {
+  max-width: 100%;
+  gap: .45em;
+  font-size: 10cqw;
+}
+#timer.finish-out .clock-box .finish-label {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
